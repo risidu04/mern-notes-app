@@ -27,6 +27,30 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 
+// SEARCH NOTES
+router.get("/search", authMiddleware, async (req, res) => {
+
+  try {
+
+    const query = req.query.q;
+
+    const notes = await Note.find({
+      $text: { $search: query },
+      $or: [
+        { owner: req.user.id },
+        { collaborators: req.user.id }
+      ]
+    });
+
+    res.json(notes);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+
+});
+
+
 // GET ALL NOTES
 router.get("/", authMiddleware, async (req, res) => {
 
